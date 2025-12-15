@@ -1,35 +1,36 @@
 public class Piece {
-    private String type;
-    private String position;
+    private Color color;
+    private Type type;
     private int row;
     private int col;
 
-    public Piece(String type, String position, int row, int col)
+    public Piece(Color color, Type type, int row, int col)
     {
+        this.color = color;
         this.type = type;
-        this.position = position;
         this.row = row;
         this.col = col;
     }
 
-    public String getType() {return type;}
-    public String getPosition() {return position;}
+    public Color getColor() {return color;}
+    public Type getType() {return type;}
     public int getRow() {return row;}
     public int getCol() {return col;}
 
-    public void setType(String type)
+    public void setColor(Color color)
+    {
+        this.color = color;
+    }
+
+    public void setType(Type type)
     {
         this.type = type;
     }
 
-    public void setPosition(String position)
-    {
-        this.position = position;
-    }
 
-    public void setXY(int x, int y)
+    public void setRowCol(int row, int col)
     {
-        this.row = x;
-        this.col = y;
+        this.row = row;
+        this.col = col;
     }
 }

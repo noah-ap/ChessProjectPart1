@@ -33,29 +33,22 @@ public class Board
                     }
 
                     if (cell.charAt(0) == 'W') 
-                    {color = Color.WHITE;}
-                    else {color = Color.BLACK;}
+                    {
+                        color = Color.WHITE;
+                    }
+                    else 
+                    {
+                        color = Color.BLACK;
+                    }
 
                     switch (cell.charAt(1))
                     {
-                        case 'K':
-                            type = Type.KING;
-                            break;
-                        case 'Q':
-                            type = Type.QUEEN;
-                            break;
-                        case 'R':
-                            type = Type.ROOK;
-                            break;
-                        case 'B':
-                            type = Type.BISHOP;
-                            break;
-                        case 'N':
-                            type = Type.KNIGHT;
-                            break;   
-                        case 'P':
-                            type = Type.PAWN;
-                            break;  
+                        case 'K': type = Type.KING;     break;
+                        case 'Q': type = Type.QUEEN;    break;
+                        case 'R': type = Type.ROOK;     break;
+                        case 'B': type = Type.BISHOP;   break;
+                        case 'N': type = Type.KNIGHT;   break;   
+                        case 'P': type = Type.PAWN;     break;  
                     }
 
                     pieces[r][c] = new Piece(color, type, r, c);
@@ -103,4 +96,43 @@ public class Board
                 System.out.println();
             }
     }
+
+    public void applyMove(Move move) 
+    {
+        int fromRow = move.getAtRow();
+        int fromCol = move.getAtCol();
+        int toRow = move.getToRow();
+        int toCol = move.getToCol();
+
+        Piece movingPiece = pieces[fromRow][fromCol];
+
+        if (movingPiece == null)
+        {
+            System.out.print("No piece at square.");
+            return;
+        }
+
+        pieces[toRow][toCol] = movingPiece;
+
+        // Update cords of Piece
+        movingPiece.setRowCol(toRow, toCol);
+
+        pieces[fromRow][fromCol] = null;
+        
+        System.out.println( "Moved " + movingPiece.getColor() + " " + movingPiece.getType() +
+                            " from (" + fromRow + "," + fromCol + ") to (" + toRow + "," + toCol + ")");
+    }
+    /* Check piece type at At Position
+      Check if piece move legal
+      Check # status
+
+      if good make move
+
+      Set To Position to Type
+      Set At Position to "--"
+
+      Update Board
+      Call next move and change player turns
+   */
+
 }

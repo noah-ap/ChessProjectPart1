@@ -6,15 +6,12 @@ public class Chess3 {
 
         board.printBoard();
 
-        // Example move reading
-
-
-        // Later you will parse the move and update pieces
         //boolean mate = false;
         //boolean legal = false;
 
-
-        String move = userMove.getMove();
+        Move move = userMove.getMove();
+        board.applyMove(move);
+        board.printBoard();
     }
 }
 

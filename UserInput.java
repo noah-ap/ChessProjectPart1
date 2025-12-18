@@ -9,9 +9,38 @@ public class UserInput
         input = new Scanner(System.in);
     }
 
-    public String getMove() 
+    public Move getMove() 
     {
         System.out.println("Enter a move: ");
-        return input.nextLine();
+
+        String move = input.nextLine();
+
+        String[] parts = move.split(" ");
+
+        if (parts.length != 2)
+        {
+            System.out.print("Invalid Input");
+            return null;
+        }
+
+        String at = parts[0];
+        String to = parts[1];
+
+        char atFile = at.charAt(0);
+        char atRank = at.charAt(1);
+
+        char toFile = to.charAt(0);
+        char toRank = to.charAt(1);
+
+        int atCol = atFile - 'a';
+        int atRow = 8 - (atRank - '0');
+        
+        int toCol = toFile - 'a';
+        int toRow = 8 - (toRank - '0');
+    
+        // Traverse 2DArray with rows first so rows and cols orders are reversed
+        // Ex. String cords = atRow + " " + atCol + " " + toRow + " " + toCol;
+
+        return new Move(atRow, atCol, toRow, toCol);
     }
 }

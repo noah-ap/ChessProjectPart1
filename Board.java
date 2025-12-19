@@ -104,23 +104,107 @@ public class Board
         int toRow = move.getToRow();
         int toCol = move.getToCol();
 
-        Piece movingPiece = pieces[fromRow][fromCol];
+        int deltaRow = toRow - fromRow;
+        int deltaCol = toCol - fromCol;
 
+        boolean legal = false;
+
+        Piece movingPiece = pieces[fromRow][fromCol];
+        Piece targetPiece = pieces[toRow][toCol];
+
+        // Moving Piece is a Blank Square
         if (movingPiece == null)
         {
-            System.out.print("No piece at square.");
+            System.out.println("No piece at square!");
             return;
         }
 
-        pieces[toRow][toCol] = movingPiece;
+        Color movingColor  = movingPiece.getColor();
+        Type  movingType   = movingPiece.getType();
 
-        // Update cords of Piece
-        movingPiece.setRowCol(toRow, toCol);
+        Color targetColor;
+        //Type  targetType   = targetPiece.getType();
 
-        pieces[fromRow][fromCol] = null;
+        // Check Target Square
+        if (targetPiece != null)
+        {
+
+            targetColor  = targetPiece.getColor();
+
+            if (movingColor == targetColor)
+            {
+                System.out.println("Target not allowed!");
+                return;
+            }
+        }
+
+        // King - Add Castling
+        if (movingType == Type.KING)
+        {
+            if (Math.abs(deltaRow) <= 1 && Math.abs(deltaCol) <= 1) 
+            { legal = true; } 
+        }
+
+        // Queen
+        if (movingType == Type.QUEEN)
+        {
+            if ( (Math.abs(deltaRow) == Math.abs(deltaCol)) || ((deltaRow == 0) ^ (deltaCol == 0)) )
+            { legal = true; }
+        }
+
+        // Rook
+        if (movingType == Type.ROOK)
+        {
+            if ((deltaRow == 0) ^ (deltaCol == 0))
+            { legal = true; }
+        }
+
+        // Bishop
+        if (movingType == Type.BISHOP)
+        {
+            if (Math.abs(deltaRow) == Math.abs(deltaCol))
+            { legal = true; }
+        }
+
+        // Knight
+        if (movingType == Type.KNIGHT)
+        {
+            if ( ((Math.abs(deltaRow) == 2) && (Math.abs(deltaCol) == 1)) || ((Math.abs(deltaRow) == 1) && (Math.abs(deltaCol) == 2)) )
+            { legal = true; }
+        }
+
+        // Pawn - Add first move detection = if first move allow pawn to move up 2
+        if (movingType == Type.PAWN)
+        {   
+            int direction = 0;
+            if (movingColor == Color.BLACK) { direction = 1; }
+            if (movingColor == Color.WHITE) { direction = -1;  }
+
+            if (deltaRow == direction && Math.abs(deltaCol) == 0) {legal = true;}
+
+            // Capture only legal if piece at target square
+            if ( deltaRow == direction && Math.abs(deltaCol) == 1 && (targetPiece != null) ) {legal = true;}
+        }
+
+        if (legal == true)
+        {
+            pieces[toRow][toCol] = movingPiece;
+
+            // Update cords of Piece
+            movingPiece.setRowCol(toRow, toCol);
+
+            pieces[fromRow][fromCol] = null;
         
-        System.out.println( "Moved " + movingPiece.getColor() + " " + movingPiece.getType() +
+            System.out.println( "Moved " + movingPiece.getColor() + " " + movingPiece.getType() +
                             " from (" + fromRow + "," + fromCol + ") to (" + toRow + "," + toCol + ")");
+        }
+        else
+        {
+            System.out.println("Move NOT Legal!");
+        }
+
+        legal = false;
+
     }
     /* Check piece type at At Position
       Check if piece move legal

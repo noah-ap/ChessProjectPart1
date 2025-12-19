@@ -10,8 +10,12 @@ public class Chess3 {
         //boolean legal = false;
 
         Move move = userMove.getMove();
+
+        if (move != null)
+        {
         board.applyMove(move);
         board.printBoard();
+        }
     }
 }
 

@@ -6,15 +6,17 @@ public class Chess3 {
 
         board.printBoard();
 
-        //boolean mate = false;
-        //boolean legal = false;
+        boolean checkMate = false;
 
-        Move move = userMove.getMove();
-
-        if (move != null)
+        while (checkMate == false)
         {
-        board.applyMove(move);
-        board.printBoard();
+            Move move = userMove.getMove();
+
+            if (move != null)
+            {
+            board.applyMove(move);
+            board.printBoard();
+            }
         }
     }
 }

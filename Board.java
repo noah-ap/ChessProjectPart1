@@ -1,3 +1,5 @@
+
+
 public class Board 
 {
     private String[][] layout;
@@ -123,7 +125,7 @@ public class Board
         Type  movingType   = movingPiece.getType();
 
         Color targetColor;
-        //Type  targetType   = targetPiece.getType();
+        // Type  targetType   = targetPiece.getType();
 
         // Check Target Square
         if (targetPiece != null)
@@ -138,6 +140,26 @@ public class Board
             }
         }
 
+        // Path Clear?
+
+        int rowStep = Integer.signum(deltaRow);
+        int colStep = Integer.signum(deltaCol);
+
+        int currentRow = fromRow + rowStep;
+        int currentCol = fromCol + colStep;
+
+        while (currentRow != toRow || currentCol != toCol)
+        {
+            if (pieces[currentRow][currentCol] != null)
+            {
+                System.out.println("Path blocked!");
+                return; // or legal = false
+            }
+
+            currentRow += rowStep;
+            currentCol += colStep;
+        }
+        
         // King - Add Castling
         if (movingType == Type.KING)
         {
@@ -177,10 +199,40 @@ public class Board
         if (movingType == Type.PAWN)
         {   
             int direction = 0;
-            if (movingColor == Color.BLACK) { direction = 1; }
-            if (movingColor == Color.WHITE) { direction = -1;  }
+            boolean firstMove = false;
+            boolean promotion = false;
 
+            if (movingColor == Color.BLACK) 
+            { 
+                direction = 1;
+                if (fromRow == 1)
+                {
+                    firstMove = true;
+                }
+                if (toRow == 7)
+                {
+                    promotion = true;
+                }
+            }
+
+            if (movingColor == Color.WHITE) 
+            { 
+                direction = -1; 
+                if (fromRow == 6)
+                {
+                firstMove = true;
+                }
+                if (toRow == 0)
+                {
+                    promotion = true;
+                }
+            }
+
+            // Move 1 Square Foward
             if (deltaRow == direction && Math.abs(deltaCol) == 0) {legal = true;}
+
+            // Move 2 Squares Foward
+            if ((deltaRow == (direction * 2) && Math.abs(deltaCol) == 0) && (firstMove == true)) {legal = true;}
 
             // Capture only legal if piece at target square
             if ( deltaRow == direction && Math.abs(deltaCol) == 1 && (targetPiece != null) ) {legal = true;}
@@ -202,9 +254,6 @@ public class Board
         {
             System.out.println("Move NOT Legal!");
         }
-
-        legal = false;
-
     }
     /* Check piece type at At Position
       Check if piece move legal

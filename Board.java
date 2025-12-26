@@ -254,175 +254,158 @@ public class Board
     return true;
     }
 
-    /* public void applyMove(Move move) 
+    public Square getKingSquare(Color color)
     {
-        MoveContext ctx = new MoveContext(this, move);
-
-        int fromRow = move.getAtRow();
-        int fromCol = move.getAtCol();
-        int toRow = move.getToRow();
-        int toCol = move.getToCol();
-
-        int deltaRow = toRow - fromRow;
-        int deltaCol = toCol - fromCol;
-
-        boolean legal = false;
-
-        Piece movingPiece = pieces[fromRow][fromCol];
-        Piece targetPiece = pieces[toRow][toCol];
-
-        // Moving Piece is a Blank Square
-        if (movingPiece == null)
-        {
-            System.out.println("No piece at square!");
-            return;
-        }
-
-        Color movingColor  = movingPiece.getColor();
-        Type  movingType   = movingPiece.getType();
-
-        Color targetColor;
-        // Type  targetType   = targetPiece.getType();
-
-        // Check Target Square
-        if (targetPiece != null)
-        {
-
-            targetColor  = targetPiece.getColor();
-
-            if (movingColor == targetColor)
+        for (int r = 0; r < 8; r++) 
             {
-                System.out.println("Target not allowed!");
-                return;
-            }
-        }
-
-        // Path Clear?
-
-        int rowStep = Integer.signum(deltaRow);
-        int colStep = Integer.signum(deltaCol);
-
-        int currentRow = fromRow + rowStep;
-        int currentCol = fromCol + colStep;
-
-        while (currentRow != toRow || currentCol != toCol)
-        {
-            if (pieces[currentRow][currentCol] != null)
-            {
-                System.out.println("Path blocked!");
-                return; // or legal = false
-            }
-
-            currentRow += rowStep;
-            currentCol += colStep;
-        }
-        
-        // King - Add Castling
-        if (movingType == Type.KING)
-        {
-            if (Math.abs(deltaRow) <= 1 && Math.abs(deltaCol) <= 1) 
-            { legal = true; } 
-        }
-
-        // Queen
-        if (movingType == Type.QUEEN)
-        {
-            if ( (Math.abs(deltaRow) == Math.abs(deltaCol)) || ((deltaRow == 0) ^ (deltaCol == 0)) )
-            { legal = true; }
-        }
-
-        // Rook
-        if (movingType == Type.ROOK)
-        {
-            if ((deltaRow == 0) ^ (deltaCol == 0))
-            { legal = true; }
-        }
-
-        // Bishop
-        if (movingType == Type.BISHOP)
-        {
-            if (Math.abs(deltaRow) == Math.abs(deltaCol))
-            { legal = true; }
-        }
-
-        // Knight
-        if (movingType == Type.KNIGHT)
-        {
-            if ( ((Math.abs(deltaRow) == 2) && (Math.abs(deltaCol) == 1)) || ((Math.abs(deltaRow) == 1) && (Math.abs(deltaCol) == 2)) )
-            { legal = true; }
-        }
-
-        // Pawn - Add first move detection = if first move allow pawn to move up 2
-        if (movingType == Type.PAWN)
-        {   
-            int direction = 0;
-            boolean firstMove = false;
-            boolean promotion = false;
-
-            if (movingColor == Color.BLACK) 
-            { 
-                direction = 1;
-                if (fromRow == 1)
+                for (int c = 0; c < 8; c++) 
                 {
-                    firstMove = true;
-                }
-                if (toRow == 7)
-                {
-                    promotion = true;
+                    Piece p = pieces[r][c];
+
+                    if (p != null && p.getType() == Type.KING && p.getColor() == color)
+                    {
+                        return new Square(r, c);
+                    }
                 }
             }
-
-            if (movingColor == Color.WHITE) 
-            { 
-                direction = -1; 
-                if (fromRow == 6)
-                {
-                firstMove = true;
-                }
-                if (toRow == 0)
-                {
-                    promotion = true;
-                }
-            }
-
-            // Move 1 Square Foward
-            if (deltaRow == direction && Math.abs(deltaCol) == 0) {legal = true;}
-
-            // Move 2 Squares Foward
-            if ((deltaRow == (direction * 2) && Math.abs(deltaCol) == 0) && (firstMove == true)) {legal = true;}
-
-            // Capture only legal if piece at target square
-            if ( deltaRow == direction && Math.abs(deltaCol) == 1 && (targetPiece != null) ) {legal = true;}
-        }
-
-        if (legal == true)
-        {
-            pieces[toRow][toCol] = movingPiece;
-
-            // Update cords of Piece
-            movingPiece.setRowCol(toRow, toCol);
-
-            pieces[fromRow][fromCol] = null;
-        
-            System.out.println( "Moved " + movingPiece.getColor() + " " + movingPiece.getType() +
-                            " from (" + fromRow + "," + fromCol + ") to (" + toRow + "," + toCol + ")");
-        }
-        else
-        {
-            System.out.println("Move NOT Legal!");
-        }
+        return null;
     }
-    /* Check piece type at At Position
-      Check if piece move legal
-      Check # status
 
-      if good make move
+    public boolean isSquareAttacked(Square square, Color color)
+    {
+        for (int r = 0; r < 8; r++) 
+            {
+                for (int c = 0; c < 8; c++) 
+                {
+                    Piece p = pieces[r][c];
+                    int targetRow = square.getRow();
+                    int targetCol = square.getCol();
 
-      Set To Position to Type
-      Set At Position to "--"
+                    if (p == null)               { continue; }
+                    if (p.getColor() == color)   { continue; }
+                    
+                    // King 
+                    if (p.getType() == Type.KING)
+                    {
+                        if (Math.abs(targetRow - r) <= 1 && Math.abs(targetCol - c) <= 1) 
+                        { return true; } 
+                    }
 
-      Update Board
-      Call next move and change player turns
-   */
+                    // Queen
+                    if (p.getType() == Type.QUEEN)
+                    {
+                        if ((targetRow == r) || (targetCol == c))
+                        {
+                            int stepRow = Integer.compare(targetRow, r);
+                            int stepCol = Integer.compare(targetCol, c);
+
+                            int currentRow = r + stepRow;
+                            int currentCol = c + stepCol;
+
+                            while (currentRow != targetRow || currentCol != targetCol)
+                            {
+                                if (pieces[currentRow][currentCol] != null)
+                                { break; }
+
+                                if (currentRow == targetRow && currentCol == targetCol)
+                                { return true; }
+
+                                currentRow += stepRow;
+                                currentCol += stepCol;
+                            }
+                        }
+
+                        if (Math.abs(targetRow - r) == Math.abs(targetCol - c))
+                        { 
+                            int stepRow = Integer.compare(targetRow, r);
+                            int stepCol = Integer.compare(targetCol, c);
+
+                            int currentRow = r + stepRow;
+                            int currentCol = c + stepCol;
+
+                            while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8)
+                            {
+                                if (pieces[currentRow][currentCol] != null)
+                                { break; }
+
+                                if (currentRow == targetRow && currentCol == targetCol)
+                                { return true; }
+
+                                currentRow += stepRow;
+                                currentCol += stepCol;
+                            }
+                        }
+                    }
+
+                    // Rook
+                    if (p.getType() == Type.ROOK)
+                    {
+                        if ((targetRow == r) || (targetCol == c))
+                        {
+                            int stepRow = Integer.compare(targetRow, r);
+                            int stepCol = Integer.compare(targetCol, c);
+
+                            int currentRow = r + stepRow;
+                            int currentCol = c + stepCol;
+
+                            while (currentRow != targetRow || currentCol != targetCol)
+                            {
+                                if (pieces[currentRow][currentCol] != null)
+                                { break; }
+
+                                if (currentRow == targetRow && currentCol == targetCol)
+                                { return true; }
+
+                                currentRow += stepRow;
+                                currentCol += stepCol;
+                            }
+                        }
+                    }
+
+                    // Bishop
+                    if (p.getType() == Type.BISHOP)
+                    {
+                        if (Math.abs(targetRow - r) == Math.abs(targetCol - c))
+                        { 
+                            int stepRow = Integer.compare(targetRow, r);
+                            int stepCol = Integer.compare(targetCol, c);
+
+                            int currentRow = r + stepRow;
+                            int currentCol = c + stepCol;
+
+                            while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8)
+                            {
+                                if (pieces[currentRow][currentCol] != null)
+                                { break; }
+
+                                if (currentRow == targetRow && currentCol == targetCol)
+                                { return true; }
+
+                                currentRow += stepRow;
+                                currentCol += stepCol;
+                            }
+                        }
+                    }
+
+                    // Knight
+                    if (p.getType() == Type.KNIGHT)
+                    {
+                        if ( ((Math.abs(targetRow - r) == 2) && (Math.abs(targetCol - c) == 1)) || ((Math.abs(targetRow - r) == 1) && (Math.abs(targetCol - c) == 2)) )
+                        { return true; }
+                    }
+                    
+                    // Pawn
+                    if (p.getType() == Type.PAWN)
+                    {
+                        int pawnDirection = (p[r][c].getColor == Color.WHITE) ? -1 : 1;
+
+                        if ( (targetRow - r) == pawnDirection && Math.abs(targetCol - c) == 1 ) 
+                        {return true;}
+                    } 
+                }
+            }
+
+            return false;
+    }
 
 }

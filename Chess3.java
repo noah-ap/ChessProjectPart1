@@ -17,9 +17,22 @@ public class Chess3 {
             board.applyMove(move);
             board.printBoard();
             }
+
+            String turnStat = "None";
+            if (board.getCurrentTurn() == Color.WHITE)
+            {
+                turnStat = "White";
+            }
+            if (board.getCurrentTurn() == Color.BLACK)
+            {
+                turnStat = "Black";
+            }
+            
+            boolean check = board.isInCheck();
+            System.out.println(turnStat + " in check? " + check);
         }
-    }
-}
+    }    
+}   
 
 
 

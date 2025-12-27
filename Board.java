@@ -62,6 +62,9 @@ public class Board
     {
         for (int r = 0; r < 8; r++) 
             {
+
+                System.out.print((8- r) + " ");
+
                 for (int c = 0; c < 8; c++) 
                 {
 
@@ -69,12 +72,7 @@ public class Board
                     char colorChar = '-';
                     char typeChar = '-';
 
-                    if (pChar == null)
-                    {
-                       System.out.printf("%c%c ", colorChar, typeChar); 
-                       continue;
-                    }
-                    else 
+                    if (pChar != null)
                     {
                         switch (pChar.getColor())
                         {
@@ -91,12 +89,19 @@ public class Board
                             case KNIGHT:    typeChar = 'N'; break;
                             case PAWN:      typeChar = 'P'; break;
                         }
-
-                        System.out.printf("%c%c ", colorChar, typeChar); 
                     }
+
+                    System.out.printf("%c%c ", colorChar, typeChar); 
                 }
                 System.out.println();
             }
+
+            System.out.print("  ");
+            for (char file = 'a'; file <= 'h'; file++)
+            {
+                System.out.print(file + "  ");
+            }
+            System.out.println();
     }
 
     public Piece getPiece(int r, int c) { return pieces[r][c]; }
@@ -271,141 +276,85 @@ public class Board
         return null;
     }
 
-    public boolean isSquareAttacked(Square square, Color color)
+    private boolean rayAttacks(int r, int c, int targetRow, int targetCol)
     {
-        for (int r = 0; r < 8; r++) 
-            {
-                for (int c = 0; c < 8; c++) 
-                {
-                    Piece p = pieces[r][c];
-                    int targetRow = square.getRow();
-                    int targetCol = square.getCol();
+        int stepRow = Integer.compare(targetRow, r); // (target > r) 1, (target = r) 0, (target < r) -1
+        int stepCol = Integer.compare(targetCol, c);
 
-                    if (p == null)               { continue; }
-                    if (p.getColor() == color)   { continue; }
-                    
-                    // King 
-                    if (p.getType() == Type.KING)
-                    {
-                        if (Math.abs(targetRow - r) <= 1 && Math.abs(targetCol - c) <= 1) 
-                        { return true; } 
-                    }
+        int currentRow = r + stepRow;
+        int currentCol = c + stepCol;
 
-                    // Queen
-                    if (p.getType() == Type.QUEEN)
-                    {
-                        if ((targetRow == r) || (targetCol == c))
-                        {
-                            int stepRow = Integer.compare(targetRow, r);
-                            int stepCol = Integer.compare(targetCol, c);
+        while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8)
+        {
+            if (currentRow == targetRow && currentCol == targetCol)     return true;  // target reeached
+            if (pieces[currentRow][currentCol] != null)                 return false; // blocked by a piece
 
-                            int currentRow = r + stepRow;
-                            int currentCol = c + stepCol;
+            currentRow += stepRow;
+            currentCol += stepCol;
+        }
 
-                            while (currentRow != targetRow || currentCol != targetCol)
-                            {
-                                if (pieces[currentRow][currentCol] != null)
-                                { break; }
-
-                                if (currentRow == targetRow && currentCol == targetCol)
-                                { return true; }
-
-                                currentRow += stepRow;
-                                currentCol += stepCol;
-                            }
-                        }
-
-                        if (Math.abs(targetRow - r) == Math.abs(targetCol - c))
-                        { 
-                            int stepRow = Integer.compare(targetRow, r);
-                            int stepCol = Integer.compare(targetCol, c);
-
-                            int currentRow = r + stepRow;
-                            int currentCol = c + stepCol;
-
-                            while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8)
-                            {
-                                if (pieces[currentRow][currentCol] != null)
-                                { break; }
-
-                                if (currentRow == targetRow && currentCol == targetCol)
-                                { return true; }
-
-                                currentRow += stepRow;
-                                currentCol += stepCol;
-                            }
-                        }
-                    }
-
-                    // Rook
-                    if (p.getType() == Type.ROOK)
-                    {
-                        if ((targetRow == r) || (targetCol == c))
-                        {
-                            int stepRow = Integer.compare(targetRow, r);
-                            int stepCol = Integer.compare(targetCol, c);
-
-                            int currentRow = r + stepRow;
-                            int currentCol = c + stepCol;
-
-                            while (currentRow != targetRow || currentCol != targetCol)
-                            {
-                                if (pieces[currentRow][currentCol] != null)
-                                { break; }
-
-                                if (currentRow == targetRow && currentCol == targetCol)
-                                { return true; }
-
-                                currentRow += stepRow;
-                                currentCol += stepCol;
-                            }
-                        }
-                    }
-
-                    // Bishop
-                    if (p.getType() == Type.BISHOP)
-                    {
-                        if (Math.abs(targetRow - r) == Math.abs(targetCol - c))
-                        { 
-                            int stepRow = Integer.compare(targetRow, r);
-                            int stepCol = Integer.compare(targetCol, c);
-
-                            int currentRow = r + stepRow;
-                            int currentCol = c + stepCol;
-
-                            while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8)
-                            {
-                                if (pieces[currentRow][currentCol] != null)
-                                { break; }
-
-                                if (currentRow == targetRow && currentCol == targetCol)
-                                { return true; }
-
-                                currentRow += stepRow;
-                                currentCol += stepCol;
-                            }
-                        }
-                    }
-
-                    // Knight
-                    if (p.getType() == Type.KNIGHT)
-                    {
-                        if ( ((Math.abs(targetRow - r) == 2) && (Math.abs(targetCol - c) == 1)) || ((Math.abs(targetRow - r) == 1) && (Math.abs(targetCol - c) == 2)) )
-                        { return true; }
-                    }
-                    
-                    // Pawn
-                    if (p.getType() == Type.PAWN)
-                    {
-                        int pawnDirection = (p[r][c].getColor == Color.WHITE) ? -1 : 1;
-
-                        if ( (targetRow - r) == pawnDirection && Math.abs(targetCol - c) == 1 ) 
-                        {return true;}
-                    } 
-                }
-            }
-
-            return false;
+        return false; // didn't ever hit the target while scanning through the board
     }
 
+    public boolean isSquareAttacked(Square square, Color color)
+    {
+        int targetRow = square.getRow();
+        int targetCol = square.getCol();
+
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                Piece p = pieces[r][c];
+
+                if (p == null)               continue; // empty square
+                if (p.getColor() == color)   continue; // same color as target (king)
+
+                int deltaRow = targetRow - r;
+                int deltaCol = targetCol - c;
+                    
+                switch (p.getType()) 
+                {
+                    case KING:
+                        if (Math.abs(deltaRow) <= 1 && Math.abs(deltaCol) <= 1) 
+                            return true;
+                        break;
+
+                    case QUEEN:
+                        if (deltaRow == 0 || deltaCol == 0 || Math.abs(deltaRow) == Math.abs(deltaCol))
+                        {
+                            if (rayAttacks(r, c, targetRow, targetCol))
+                                return true;
+                        }
+                        break;
+
+                    case BISHOP:
+                        if (Math.abs(deltaRow) == Math.abs(deltaCol))
+                        {
+                            if (rayAttacks(r, c, targetRow, targetCol))
+                                return true;
+                        }
+                        break;
+
+                    case KNIGHT:
+                        if ( ((Math.abs(targetRow - r) == 2) && (Math.abs(targetCol - c) == 1)) || ((Math.abs(targetRow - r) == 1) && (Math.abs(targetCol - c) == 2)) )
+                            return true;
+                        break;
+
+                    case PAWN:
+                        int pawnDir = (p.getColor() == Color.WHITE) ? -1 : 1; // pawns attack foward direction
+                        if (deltaRow == pawnDir && Math.abs(deltaCol) == 1)
+                            return true;
+                        break;
+                }
+            }
+            
+        }
+
+        return false; // no attacks on target (king)
+    }
+
+    public boolean isInCheck() {
+    Color enemyColor = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+    Square kingSquare = getKingSquare(enemyColor);
+    return isSquareAttacked(kingSquare, enemyColor);
+    }
 }

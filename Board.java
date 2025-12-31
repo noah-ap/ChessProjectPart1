@@ -172,56 +172,58 @@ public class Board
 
     public boolean isPieceMoveLegal(MoveContext ctx)
     {
-        // King - Add Castling
-        if (ctx.movingType == Type.KING)
+        switch (ctx.movingType)
         {
-            if (Math.abs(ctx.deltaRow) <= 1 && Math.abs(ctx.deltaCol) <= 1) 
-            { return true; } 
-        }
+            case KING:
 
-        // Queen
-        if (ctx.movingType == Type.QUEEN)
-        {
-            if ( (Math.abs(ctx.deltaRow) == Math.abs(ctx.deltaCol)) || ((ctx.deltaRow == 0) ^ (ctx.deltaCol == 0)) )
-            { return true; }
-        }
+                // Add Castling
 
-        // Rook
-        if (ctx.movingType == Type.ROOK)
-        {
-            if ((ctx.deltaRow == 0) ^ (ctx.deltaCol == 0))
-            { return true; }
-        }
+                if (Math.abs(ctx.deltaRow) <= 1 && Math.abs(ctx.deltaCol) <= 1) 
+                    { return true; } 
+                break;
 
-        // Bishop
-        if (ctx.movingType == Type.BISHOP)
-        {
-            if (Math.abs(ctx.deltaRow) == Math.abs(ctx.deltaCol))
-            { return true; }
-        }
+            case QUEEN:
+                
+                if ( (Math.abs(ctx.deltaRow) == Math.abs(ctx.deltaCol)) || ((ctx.deltaRow == 0) ^ (ctx.deltaCol == 0)) )
+                    { return true; }
+                break;
 
-        // Knight
-        if (ctx.movingType == Type.KNIGHT)
-        {
-            if ( ((Math.abs(ctx.deltaRow) == 2) && (Math.abs(ctx.deltaCol) == 1)) || ((Math.abs(ctx.deltaRow) == 1) && (Math.abs(ctx.deltaCol) == 2)) )
-            { return true; }
-        }
+            case ROOK:
 
-        // Pawn
-        if (ctx.movingType == Type.PAWN)
-        {   
-            // Move 1 Square Foward
-            if (ctx.deltaRow == ctx.pawnDirection && Math.abs(ctx.deltaCol) == 0) 
-            {return true;}
+                if ((ctx.deltaRow == 0) ^ (ctx.deltaCol == 0))
+                    { return true; }
+                break;
 
-            // Move 2 Squares Foward
-            if ((ctx.deltaRow == (ctx.pawnDirection * 2) && Math.abs(ctx.deltaCol) == 0) && (ctx.pawnFirstMove)) 
-            {return true;}
+            case BISHOP:
 
-            // Capture only legal if piece at target square
-            if ( ctx.deltaRow == ctx.pawnDirection && Math.abs(ctx.deltaCol) == 1 && (ctx.targetPiece != null) ) 
-            {return true;}
+                if (Math.abs(ctx.deltaRow) == Math.abs(ctx.deltaCol))
+                    { return true; }
+                break;
+
+            case KNIGHT:
+
+                if ( ((Math.abs(ctx.deltaRow) == 2) && (Math.abs(ctx.deltaCol) == 1)) || ((Math.abs(ctx.deltaRow) == 1) && (Math.abs(ctx.deltaCol) == 2)) )
+                    { return true; }
+                break;
+
+            case PAWN:
+
+                if (ctx.deltaRow == ctx.pawnDirection && Math.abs(ctx.deltaCol) == 0) 
+                    {return true;}
+
+                // Move 2 Squares Foward
+                if ((ctx.deltaRow == (ctx.pawnDirection * 2) && Math.abs(ctx.deltaCol) == 0) && (ctx.pawnFirstMove)) 
+                    {return true;}
+
+                // Capture only legal if piece at target square
+                if ( ctx.deltaRow == ctx.pawnDirection && Math.abs(ctx.deltaCol) == 1 && (ctx.targetPiece != null) ) 
+                    {return true;}
+                break;
+            
+            default:
+                break;
         } 
+
         return false;
     }
 
@@ -249,14 +251,14 @@ public class Board
 
     public boolean isLegalMove(MoveContext ctx) 
     {
-    if (!isInsideBoard(ctx)) return false;
-    if (!hasMovingPiece(ctx)) return false;
-    if (!isCorrectTurn(ctx)) return false;
-    if (!isTargetAllowed(ctx)) return false;
-    if (!isPieceMoveLegal(ctx)) return false;
-    if (!isPathClear(ctx)) return false;
+        if (!isInsideBoard(ctx)) return false;
+        if (!hasMovingPiece(ctx)) return false;
+        if (!isCorrectTurn(ctx)) return false;
+        if (!isTargetAllowed(ctx)) return false;
+        if (!isPieceMoveLegal(ctx)) return false;
+        if (!isPathClear(ctx)) return false;
 
-    return true;
+        return true;
     }
 
     public Square getKingSquare(Color color)
@@ -352,9 +354,16 @@ public class Board
         return false; // no attacks on target (king)
     }
 
-    public boolean isInCheck() {
-    Color enemyColor = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
-    Square kingSquare = getKingSquare(enemyColor);
-    return isSquareAttacked(kingSquare, enemyColor);
+    public boolean isInCheck() 
+    {
+        Color enemyColor = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+        Square kingSquare = getKingSquare(enemyColor);
+        return isSquareAttacked(kingSquare, enemyColor);
+    }
+
+    public boolean isKingSafe() // Checks the king of the current players turn to see if its safe
+    {
+        Square kingSquare = getKingSquare(currentTurn);
+        return !isSquareAttacked(kingSquare, currentTurn);
     }
 }

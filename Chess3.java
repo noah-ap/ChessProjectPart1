@@ -18,18 +18,31 @@ public class Chess3 {
             board.printBoard();
             }
 
-            String turnStat = "None";
+            String attackerColor = "None";
             if (board.getCurrentTurn() == Color.WHITE)
             {
-                turnStat = "White";
+                attackerColor = "White";
             }
             if (board.getCurrentTurn() == Color.BLACK)
             {
-                turnStat = "Black";
+                attackerColor = "Black";
+            }
+
+            String defenderColor = "None";
+            if (board.getCurrentTurn() == Color.WHITE)
+            {
+                defenderColor = "Black";
+            }
+            if (board.getCurrentTurn() == Color.BLACK)
+            {
+                defenderColor = "White";
             }
             
-            boolean check = board.isInCheck();
-            System.out.println(turnStat + " in check? " + check);
+            boolean check      = board.isInCheck();
+            boolean kingSafety = board.isKingSafe();
+            System.out.println(attackerColor + " in check? " + check);
+            System.out.println(defenderColor + " is safe? " + kingSafety);
+            System.out.println("Current Color's Turn: " + attackerColor);
         }
     }    
 }   

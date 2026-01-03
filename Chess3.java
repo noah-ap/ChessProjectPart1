@@ -14,35 +14,12 @@ public class Chess3 {
 
             if (move != null)
             {
-            board.applyMove(move);
+            board.finalizeMove(move);
             board.printBoard();
             }
 
-            String attackerColor = "None";
-            if (board.getCurrentTurn() == Color.WHITE)
-            {
-                attackerColor = "White";
-            }
-            if (board.getCurrentTurn() == Color.BLACK)
-            {
-                attackerColor = "Black";
-            }
-
-            String defenderColor = "None";
-            if (board.getCurrentTurn() == Color.WHITE)
-            {
-                defenderColor = "Black";
-            }
-            if (board.getCurrentTurn() == Color.BLACK)
-            {
-                defenderColor = "White";
-            }
-            
-            boolean check      = board.isInCheck();
-            boolean kingSafety = board.isKingSafe();
-            System.out.println(attackerColor + " in check? " + check);
-            System.out.println(defenderColor + " is safe? " + kingSafety);
-            System.out.println("Current Color's Turn: " + attackerColor);
+            System.out.println("Is White in check? " + board.isWhiteInCheck());
+            System.out.println("Is Black in check? " + board.isBlackInCheck());
         }
     }    
 }   

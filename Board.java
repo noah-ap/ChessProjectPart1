@@ -107,10 +107,8 @@ public class Board
     public Piece getPiece(int r, int c) { return pieces[r][c]; }
     public Color getCurrentTurn()       { return currentTurn; }
 
-    public void applyMove(Move move) 
+    public void applyMove(Move move, MoveContext ctx) 
     {
-        MoveContext ctx = new MoveContext(this, move);
-
         if (isLegalMove(ctx))
         {
             // Update Board Array
@@ -119,18 +117,55 @@ public class Board
             
             // Update cords of Piece
             ctx.movingPiece.setRowCol(ctx.toRow, ctx.toCol);
-            
-            // Update turn
-            currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
-
-            System.out.println( "Moved " + ctx.movingPiece.getColor() + " " + ctx.movingPiece.getType() +
-                            " from (" + ctx.atRow + "," + ctx.atCol + ") to (" + ctx.toRow + "," + ctx.toCol + ")");
         }
         else
         {
             System.out.println("Move NOT Legal!");
         }
     }
+
+    public void undoMove(Move move, MoveContext ctx)
+    {
+        // Restore Board Array
+        pieces[ctx.atRow][ctx.atCol] = ctx.movingPiece;
+        pieces[ctx.toRow][ctx.toCol] = ctx.targetPiece;
+        
+        // Update cords of Pieces
+        ctx.movingPiece.setRowCol(ctx.atRow, ctx.atCol);
+
+        if (ctx.targetPiece != null)
+        {
+            ctx.targetPiece.setRowCol(ctx.toRow, ctx.toCol);
+        }
+    }
+
+    public void finalizeMove(Move move)
+    {
+        MoveContext ctx = new MoveContext(this, move);
+
+        if (isLegalMove(ctx))
+        {
+            applyMove(move, ctx);
+        }
+
+        // if current player not in check apply move
+        if (!isKingInCheck(currentTurn))
+        {
+            currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+            System.out.println( "Moved " + ctx.movingPiece.getColor() + " " + ctx.movingPiece.getType() +
+                " from (" + ctx.atRow + "," + ctx.atCol + ") to (" + ctx.toRow + "," + ctx.toCol + ")");
+
+            System.out.println("It's " + currentTurn + "'s turn.");
+        }
+        else
+        {
+            undoMove(move, ctx);
+            System.out.println("Your King is in CHECK!");
+        }
+    }
+
+    // Move legality 
 
     public boolean isInsideBoard(MoveContext ctx)
     {
@@ -212,7 +247,7 @@ public class Board
                     {return true;}
 
                 // Move 2 Squares Foward
-                if ((ctx.deltaRow == (ctx.pawnDirection * 2) && Math.abs(ctx.deltaCol) == 0) && (ctx.pawnFirstMove)) 
+                if ((ctx.deltaRow == (ctx.pawnDirection * 2) && Math.abs(ctx.deltaCol) == 0) && (!ctx.hadMovedBefore)) 
                     {return true;}
 
                 // Capture only legal if piece at target square
@@ -260,6 +295,8 @@ public class Board
 
         return true;
     }
+
+    // King Safety
 
     public Square getKingSquare(Color color)
     {
@@ -354,16 +391,13 @@ public class Board
         return false; // no attacks on target (king)
     }
 
-    public boolean isInCheck() 
+    public boolean isKingInCheck(Color kingColor) 
     {
-        Color enemyColor = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
-        Square kingSquare = getKingSquare(enemyColor);
-        return isSquareAttacked(kingSquare, enemyColor);
+        Square kingSquare = getKingSquare(kingColor);
+        return isSquareAttacked(kingSquare, kingColor);
     }
 
-    public boolean isKingSafe() // Checks the king of the current players turn to see if its safe
-    {
-        Square kingSquare = getKingSquare(currentTurn);
-        return !isSquareAttacked(kingSquare, currentTurn);
-    }
+    public boolean isWhiteInCheck() { return isKingInCheck(Color.WHITE); }
+
+    public boolean isBlackInCheck() { return isKingInCheck(Color.BLACK); }
 }

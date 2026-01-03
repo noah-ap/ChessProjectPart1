@@ -17,9 +17,6 @@ public class Chess3 {
             board.finalizeMove(move);
             board.printBoard();
             }
-
-            System.out.println("Is White in check? " + board.isWhiteInCheck());
-            System.out.println("Is Black in check? " + board.isBlackInCheck());
         }
     }    
 }   

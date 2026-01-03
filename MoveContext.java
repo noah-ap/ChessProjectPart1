@@ -1,14 +1,19 @@
 public class MoveContext {
     public final Move move;
+
     public final Piece movingPiece;
     public final Piece targetPiece;
+
     public final int atRow, atCol, toRow, toCol;
     public final int deltaRow, deltaCol;
     public final int stepRow, stepCol;
+
     public final Color movingColor, targetColor;
     public final Type movingType, targetType;
+
     public final int pawnDirection;
-    public final boolean pawnFirstMove;
+
+    public boolean hadMovedBefore;
 
     public MoveContext(Board board, Move move)
     {
@@ -28,29 +33,13 @@ public class MoveContext {
         this.movingPiece = board.getPiece(atRow, atCol);
         this.targetPiece = board.getPiece(toRow, toCol);
 
-        if (movingPiece != null)
-        {
-            this.movingColor = movingPiece.getColor();
-            this.movingType  = movingPiece.getType();
-        }
-        else 
-        {
-            this.movingColor = null;
-            this.movingType  = null;
-        }
+        this.movingColor = (movingPiece != null) ? movingPiece.getColor() : null;
+        this.movingType  = (movingPiece != null) ? movingPiece.getType()  : null;
 
-        if (targetPiece != null)
-        {
-            this.targetColor = targetPiece.getColor();
-            this.targetType  = targetPiece.getType();
-        }
-        else
-        {
-            this.targetColor = null;
-            this.targetType  = null;
-        }
+        this.targetColor = (targetPiece != null) ? targetPiece.getColor() : null;
+        this.targetType  = (targetPiece != null) ? targetPiece.getType()  : null;
 
         this.pawnDirection = (movingColor == Color.WHITE) ? -1 : 1;
-        this.pawnFirstMove = ( (movingColor == Color.WHITE && atRow == 6) || (movingColor == Color.BLACK && atRow == 1) );
+        this.hadMovedBefore = (movingPiece != null) && movingPiece.hasMoved();
     }
 }

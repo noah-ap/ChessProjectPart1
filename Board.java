@@ -109,19 +109,12 @@ public class Board
 
     public void applyMove(Move move, MoveContext ctx) 
     {
-        if (isLegalMove(ctx))
-        {
             // Update Board Array
             pieces[ctx.toRow][ctx.toCol] = ctx.movingPiece;
             pieces[ctx.atRow][ctx.atCol] = null;
             
             // Update cords of Piece
             ctx.movingPiece.setRowCol(ctx.toRow, ctx.toCol);
-        }
-        else
-        {
-            System.out.println("Move NOT Legal!");
-        }
     }
 
     public void undoMove(Move move, MoveContext ctx)
@@ -143,26 +136,31 @@ public class Board
     {
         MoveContext ctx = new MoveContext(this, move);
 
-        if (isLegalMove(ctx))
+        // Check if move is legal
+        if (!isLegalMove(ctx))
         {
-            applyMove(move, ctx);
+            System.out.println("Move NOT Legal!");
+            return;
         }
 
-        // if current player not in check apply move
-        if (!isKingInCheck(currentTurn))
+        applyMove(move, ctx);
+
+        // Check if current players king is in check
+        if (isKingInCheck(currentTurn))
         {
-            currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+            undoMove(move, ctx);
+            System.out.println("Your King is in CHECK!");
+            return;
+        }
+
+        // Finalize move - piece has moved set to true - change turn
+        ctx.movingPiece.setHasMoved(true);
+        currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
 
             System.out.println( "Moved " + ctx.movingPiece.getColor() + " " + ctx.movingPiece.getType() +
                 " from (" + ctx.atRow + "," + ctx.atCol + ") to (" + ctx.toRow + "," + ctx.toCol + ")");
 
             System.out.println("It's " + currentTurn + "'s turn.");
-        }
-        else
-        {
-            undoMove(move, ctx);
-            System.out.println("Your King is in CHECK!");
-        }
     }
 
     // Move legality 
